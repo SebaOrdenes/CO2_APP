@@ -16,7 +16,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 public class MainMonitorear extends AppCompatActivity  implements  View.OnClickListener{
 
@@ -52,7 +58,7 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
         switch (v.getId()){
             case R.id.button3:
-                MainMonitorear.EjemploAsyncTask ejemploAsyncTask = new MainMonitorear.EjemploAsyncTask();
+                MainMonitorear.MiAsyncTask ejemploAsyncTask = new MainMonitorear.MiAsyncTask();
                 ejemploAsyncTask.execute();
 
                 break;
@@ -61,43 +67,41 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         }
     }
 
-    public void generateApps(){
+    public Apps generateApps() {
         Context context = getApplicationContext();
         Apps apps = new Apps();
         apps.obtenerAppsEnUso(context);
-        Log.d("TAG", "generateApps: "+ apps.listaApps);
+        return apps;
+    }
+    private int getBattery(){
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        return level;
 
-        //String json = new Gson().toJson(apps); //se genera el json a partir del objeto app
-        //System.out.println(json);
     }
 
-    private BroadcastReceiver infoBateria = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context ctxt, Intent intent) {
-            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            Log.d("PORCENTAJE BATERIA ", ""+ level);
 
-        }
-    };
+
+    private class MiAsyncTask extends AsyncTask<Void,Integer,Boolean>{
 
 
 
-    private class EjemploAsyncTask extends AsyncTask<Void,Integer,Boolean>{
-
+        Monitor monitor;
+        int num;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             Toast.makeText(getBaseContext(), "Comienzo del monitoreo", Toast.LENGTH_SHORT).show();
-            generateApps();
-            registerReceiver(infoBateria, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-
+            this.monitor=  new Monitor(generateApps(), getBattery()); //G1, MEB
         }
+
+        // {"G1": {}.... "G2":{}.  }
 
         @Override
         protected Boolean doInBackground(Void... params) {
 
                 publishProgress(); //llama a onprogressUpdate
-                generateApps();
                 UnSegundo(); //con esto se setea un tiempo antes de que se termine el onprogress thread
 
             return true;
@@ -106,8 +110,12 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
+            monitor.anadirApps(generateApps()); //G2
+           // generateApps();//G2
             openNavigator();
-            generateApps();
+              // generateApps(); //G3
+            //medir energia ME APP
+
 
         }
 
@@ -115,8 +123,22 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         protected void onPostExecute(Boolean resultado) {
             //super.onPostExecute(aVoid);
             if(resultado){
+                monitor.anadirApps(generateApps() ); //G3
+                monitor.anadirPorcentajeBateria(getBattery()); //MEapp
                 Toast.makeText(getBaseContext(), "Datos energeticos monitoreados", Toast.LENGTH_SHORT).show();
-                generateApps();
+                monitor.anadirApps(generateApps()); //G4
+                String json = new Gson().toJson(monitor); //se genera el json
+                json.toString();
+                int length = json.length();
+
+                for(int i=0; i<length; i+=1024)
+                {
+                    if(i+1024<length)
+                        Log.d("JSON OUTPUT", json.substring(i, i+1024));
+                    else
+                        Log.d("JSON OUTPUT", json.substring(i, length));
+                }
+
             }
 
 
@@ -126,18 +148,11 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         protected void onCancelled() {
             super.onCancelled();
 
-            Toast.makeText(getBaseContext(), "Tarea Larga Ha sido cancelada", Toast.LENGTH_SHORT).show();
-            //setContentView(R.layout.activity_main);
+            Toast.makeText(getBaseContext(), "Deteccion de datos cancelado", Toast.LENGTH_SHORT).show();
+
 
         }
 
 
     }
-
-
-
-
-
-
-
 }
