@@ -1,5 +1,7 @@
 package com.tutsplus.code.android.asynctask;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.BroadcastReceiver;
@@ -21,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
@@ -53,6 +56,15 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
     }
 
+    void abriralgo(){
+        // Map point based on address
+        Uri location = Uri.parse("geo:0,0?q=1600+Amphitheatre+Parkway,+Mountain+View,+California");
+// Or map point based on latitude/longitude
+// Uri location = Uri.parse("geo:37.422219,-122.08364?z=14"); // z param is zoom level
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+        startActivity(mapIntent);
+
+    }
     @Override
     public void onClick(View v) {
 
@@ -73,6 +85,7 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         apps.obtenerAppsEnUso(context);
         return apps;
     }
+
     private int getBattery(){
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = registerReceiver(null, ifilter);
@@ -85,18 +98,18 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
     private class MiAsyncTask extends AsyncTask<Void,Integer,Boolean>{
 
-
-
         Monitor monitor;
         int num;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             Toast.makeText(getBaseContext(), "Comienzo del monitoreo", Toast.LENGTH_SHORT).show();
-            this.monitor=  new Monitor(generateApps(), getBattery()); //G1, MEB
+            this.monitor=  new Monitor(); //G1, MEB
+            this.monitor.añadir("G1", generateApps());
+            this.monitor.añadir("MEB", getBattery());
         }
 
-        // {"G1": {}.... "G2":{}.  }
+
 
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -110,12 +123,10 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            monitor.anadirApps(generateApps()); //G2
+            this.monitor.añadir("G2", generateApps());
            // generateApps();//G2
-            openNavigator();
-              // generateApps(); //G3
-            //medir energia ME APP
 
+           // supportFinishAfterTransition();
 
         }
 
@@ -123,21 +134,15 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         protected void onPostExecute(Boolean resultado) {
             //super.onPostExecute(aVoid);
             if(resultado){
-                monitor.anadirApps(generateApps() ); //G3
-                monitor.anadirPorcentajeBateria(getBattery()); //MEapp
-                Toast.makeText(getBaseContext(), "Datos energeticos monitoreados", Toast.LENGTH_SHORT).show();
-                monitor.anadirApps(generateApps()); //G4
-                String json = new Gson().toJson(monitor); //se genera el json
-                json.toString();
-                int length = json.length();
+                this.monitor.añadir("G3", generateApps());
 
-                for(int i=0; i<length; i+=1024)
-                {
-                    if(i+1024<length)
-                        Log.d("JSON OUTPUT", json.substring(i, i+1024));
-                    else
-                        Log.d("JSON OUTPUT", json.substring(i, length));
-                }
+                this.monitor.añadir("MEApp", getBattery());
+                Toast.makeText(getBaseContext(), "Datos energeticos monitoreados", Toast.LENGTH_SHORT).show();
+                this.monitor.añadir("G4", generateApps());
+
+                this.monitor.printear();
+
+
 
             }
 
