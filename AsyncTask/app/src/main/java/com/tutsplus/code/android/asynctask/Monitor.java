@@ -74,15 +74,16 @@ public class Monitor {
              BufferedWriter bw= new BufferedWriter(fw);
              int name = (int) fases.get("MEB");
              int name2 = (int) fases.get("MEApp");
-             Apps appaux= (Apps) fases.get("G1");
-             Apps appaux2= (Apps) fases.get("G2");
-             Apps appaux3= (Apps) fases.get("G3");
-             Apps appaux4= (Apps) fases.get("G4");
+             //Apps appaux= (Apps) fases.get("G1");
+             //Apps appaux2= (Apps) fases.get("G2");
+             //Apps appaux3= (Apps) fases.get("G3");
+             //Apps appaux4= (Apps) fases.get("G4");
 
-             if (appaux3.listaApps.toString().equals(appaux4.listaApps.toString())){
-                 Log.d("d","HOLA SOMOS IGUALES"+ fases.get("MEB"));
-             }
-             bw.write(appaux.listaApps.toString()  +"\n" + appaux2.listaApps.toString() +"\n" + appaux3.listaApps.toString() +"\n" + appaux4.listaApps.toString());
+
+             //bw.write(fases.toString());
+            // bw.write(fases.get("G1").toString());
+            // bw.write(appaux.listaApps.toString()  +"\n" + appaux2.listaApps.toString() +"\n" + appaux3.listaApps.toString() +"\n" + appaux4.listaApps.toString());
+             bw.write("\n"+this.fases.get("G1").toString()+ "\n"+this.fases.get("G2").toString()+ "\n"+this.fases.get("G3").toString()+"\n"+this.fases.get("G4").toString());
              //Log.d("a",""+ appaux.listaApps.toString()  +"\n" + appaux2.listaApps.toString() +"\n" + appaux3.listaApps.toString() +"\n" + appaux4.listaApps.toString());
 
 
