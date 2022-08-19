@@ -68,89 +68,21 @@ public class Monitor {
              File path= Environment.getExternalStorageDirectory();
              File dir= new File(path,"/Documents/");
              dir.mkdirs();
-             String fileName= "Miarchivo.txt";
+             String fileName= "ARCHIVO.txt";
              File file= new File(dir,fileName);
              FileWriter fw= new FileWriter(file.getAbsoluteFile());
              BufferedWriter bw= new BufferedWriter(fw);
              int name = (int) fases.get("MEB");
              int name2 = (int) fases.get("MEApp");
-             //Apps appaux= (Apps) fases.get("G1");
-             //Apps appaux2= (Apps) fases.get("G2");
-             //Apps appaux3= (Apps) fases.get("G3");
-             //Apps appaux4= (Apps) fases.get("G4");
-
-
-             //bw.write(fases.toString());
-            // bw.write(fases.get("G1").toString());
-            // bw.write(appaux.listaApps.toString()  +"\n" + appaux2.listaApps.toString() +"\n" + appaux3.listaApps.toString() +"\n" + appaux4.listaApps.toString());
-             bw.write("\n"+this.fases.get("G1").toString()+ "\n"+this.fases.get("G2").toString()+ "\n"+this.fases.get("G3").toString()+"\n"+this.fases.get("G4").toString());
-             //Log.d("a",""+ appaux.listaApps.toString()  +"\n" + appaux2.listaApps.toString() +"\n" + appaux3.listaApps.toString() +"\n" + appaux4.listaApps.toString());
-
-
-             //bw.write(appaux.listaApps.toString());
+             bw.write(this.fases.get("G1").toString()+ "\n"+this.fases.get("G2").toString()+ "\n"+this.fases.get("G3").toString()+"\n"+this.fases.get("G4").toString());
+             bw.write("\n"+ this.fases);
              bw.close();
              Log.d("d","TXT GUARDADO");
-
-
 
          } catch (Exception e) {
              e.printStackTrace();
          }
-
-
-
-       /*  try {
-
-             File tarjeta = Environment.getExternalStorageDirectory();
-             File file = new File(tarjeta.getAbsolutePath(), "nombre");
-             OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file));
-             osw.write(this.fases.toString());
-             osw.flush();
-             osw.close();
-         } catch (IOException e) {
-             e.printStackTrace();
-         } */
-
-        /*try {
-            Writer output = null;
-            File file = new File("storage/sdcard/" + "HOLA" + ".json");
-            output = new BufferedWriter(new FileWriter(file));
-            output.write(this.fases.toString());
-            output.close();
-            Log.d("A","HOLA LLEGUE AQUI");
-            //Toast.makeText(getApplicationContext(), "Composition saved", Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-            Log.d("A","HOLA NO SE PUDO CREAR AQUI");
-            //Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-        }*/
-
-
-       /* Writer output = null;
-        String text = this.fases.toString();
-        ContextWrapper contextWrapper= new ContextWrapper(context);
-       // File file = new File("salidas.json");
-        File path= contextWrapper.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-       // File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        File file= new File(path,"demo"+".json");
-        try {
-            path.mkdirs();
-            output = new BufferedWriter(new FileWriter(file));
-            Log.d("A", "printear: RESULTADO OK ");
-            output.write(text);
-            output.close();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //File file = new File("storage/sdcard", "/" + "salidas.json");
-
-*/
-
-
-
-    }
+       }
 
 
 

@@ -39,32 +39,6 @@ public class Apps {
             //System.out.println(taskInfo.toString());
         }
 
-
-
-
-
-      /* ActivityManager am2 = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        String packageName = am2.getRunningTasks(1).get(0).topActivity.getPackageName();
-        System.out.println(packageName);*/
-
-
-
-      /*  final PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-
-      for (ApplicationInfo packageInfo : packages) {
-            //Log.d("A", "Installed package :" + packageInfo.packageName);
-            //Log.d("B", "Launch Activity :" + pm.getLaunchIntentForPackage(packageInfo.packageName)); //guardar para valdiacion
-            // Log.d("TAGB", "Source dir : " + packageInfo.sourceDir);
-            if (pm.getLaunchIntentForPackage(packageInfo.packageName) != null) {
-                listaApps.add(packageInfo.packageName);
-            }
-
-
-        }*/
-
-
-
     }
 
     public ArrayList<String> getListaApps() {

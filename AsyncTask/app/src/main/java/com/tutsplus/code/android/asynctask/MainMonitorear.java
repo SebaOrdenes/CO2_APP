@@ -20,11 +20,16 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -35,26 +40,24 @@ import java.util.TreeMap;
 public class MainMonitorear extends AppCompatActivity  implements  View.OnClickListener{
 
     Button button3;
-    ProgressBar progressBar;
-    long hour_in_mil = 1000*60*60; // In Milliseconds
-    long end_time = System.currentTimeMillis();
-    long start_time = end_time - hour_in_mil;
+    EditText segundosIngresados;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_monitorear);
-        //Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-        //startActivity(permissionIntent);
         button3 = (Button)findViewById(R.id.button3);
-        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        segundosIngresados= findViewById(R.id.NumeroIngresado);
         button3.setOnClickListener(this);
+
+
     }
 
-   private void UnSegundo(){
+   private void esperarSegundos(int segundosDeEspera){
+        segundosDeEspera= segundosDeEspera*1000;
         try{
-            Thread.sleep(10000); //diez segundos
+            Thread.sleep(segundosDeEspera); //
         }catch (InterruptedException e){}
     }
 
@@ -67,13 +70,14 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
     }
 
 
-    public String getTopActivtyFromLolipopOnwards() {
+    public String getTopActivtyFromLolipopOnwards(int num) {
+        int numaux= num*1000;
         String topPackageName;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager mUsageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
             long time = System.currentTimeMillis();
             // We get usage stats for the last 10 seconds
-            List<UsageStats> stats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 10, time);
+            List<UsageStats> stats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - numaux * 10, time);
             // Sort the stats by the last time used
             if (stats != null) {
                 SortedMap< Long, UsageStats > mySortedMap = new TreeMap< Long, UsageStats >();
@@ -88,7 +92,7 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
                 }
             }
         }
-        return null;
+        return "null";
         //return topPackageName;
     }
 
@@ -97,8 +101,29 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
         switch (v.getId()){
             case R.id.button3:
-                MainMonitorear.MiAsyncTask ejemploAsyncTask = new MainMonitorear.MiAsyncTask();
-                ejemploAsyncTask.execute();
+                segundosIngresados.setError(null);
+                String posibleNumero = segundosIngresados.getText().toString();
+                if ("".equals(posibleNumero)) {
+                    // Primer error
+                    segundosIngresados.setError("Introduce un número");
+                    // Le damos focus
+                    segundosIngresados.requestFocus();
+                    // Y terminamos la ejecución
+                    return;
+                }
+                int segundos= Integer.parseInt(segundosIngresados.getText().toString().trim());
+
+                if (segundos> 60 || segundos <=0 ){
+                    segundosIngresados.setError("Introduce un número mayo a 0 y menor a 60");
+                    // Le damos focus
+                    segundosIngresados.requestFocus();
+                    // Y terminamos la ejecución
+                    return;
+                }else {
+
+                    new Task2().execute();
+                }
+
 
                 break;
             default:
@@ -121,13 +146,59 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
+
+    class Task2 extends AsyncTask<String, Void, String>{
+        Monitor monitor;
+        int segundos= Integer.parseInt(segundosIngresados.getText().toString().trim());
+        @Override
+        protected void onPreExecute() {
+            //onBackPressed();
+            Toast.makeText(getBaseContext(), "Comienzo del monitoreo", Toast.LENGTH_SHORT).show();
+            this.monitor=  new Monitor(); //G1, MEB
+            this.monitor.añadir("G1", getTopActivtyFromLolipopOnwards(segundos));
+            this.monitor.añadir("MEB", getBattery());
+            this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards(segundos));
+            openNavigator();
+
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+           try {
+                Thread.sleep(segundos*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "strings[0]";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            this.monitor.añadir("G3", getTopActivtyFromLolipopOnwards(segundos));
+            this.monitor.añadir("MEApp", getBattery());
+            this.monitor.añadir("G4", getTopActivtyFromLolipopOnwards(segundos));
+            this.monitor.printear();
+            Toast.makeText(getBaseContext(), "Monitoreo finalizado", Toast.LENGTH_SHORT).show();
+        }
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Toast.makeText(getBaseContext(), "Deteccion de datos cancelado", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
 
 
     private class MiAsyncTask extends AsyncTask<Void,Integer,Boolean>{
-
         Monitor monitor;
-        int num;
-
+        int segundos= Integer.parseInt(segundosIngresados.getText().toString().trim());
         @Override
         protected void onPreExecute() {
 
@@ -135,7 +206,7 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
             Toast.makeText(getBaseContext(), "Comienzo del monitoreo", Toast.LENGTH_SHORT).show();
             this.monitor=  new Monitor(); //G1, MEB
             //this.monitor.añadir("G1", generateApps());
-            this.monitor.añadir("G1", getTopActivtyFromLolipopOnwards());
+            this.monitor.añadir("G1", getTopActivtyFromLolipopOnwards(segundos));
             this.monitor.añadir("MEB", getBattery());
         }
 
@@ -144,8 +215,15 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         @Override
         protected Boolean doInBackground(Void... params) {
 
-                publishProgress(); //llama a onprogressUpdate
-                UnSegundo(); //con esto se setea un tiempo antes de que se termine el onprogress thread
+            this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards(segundos));
+            openNavigator();
+           publishProgress(); //llama a onprogressUpdate
+           esperarSegundos(segundos);
+
+            // SystemClock.sleep(40000);
+            this.monitor.añadir("G3", getTopActivtyFromLolipopOnwards(segundos));
+            this.monitor.añadir("MEApp", getBattery());
+            //UnSegundo(segundosIngresados); //con esto se setea un tiempo antes de que se termine el onprogress thread
 
             return true;
         }
@@ -153,11 +231,11 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            //this.monitor.añadir("G2", generateApps());
-            this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards());
-            openNavigator();
-           // generateApps();//G2
 
+            //this.monitor.añadir("G2", generateApps());
+            //this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards());
+            //openNavigator();
+           // generateApps();//G2
            // supportFinishAfterTransition();
 
         }
@@ -167,15 +245,12 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
             //super.onPostExecute(aVoid);
             if(resultado){
                // this.monitor.añadir("G3", generateApps());
-                this.monitor.añadir("G3", getTopActivtyFromLolipopOnwards());
-                this.monitor.añadir("MEApp", getBattery());
+                //this.monitor.añadir("G3", getTopActivtyFromLolipopOnwards());
+                //this.monitor.añadir("MEApp", getBattery());
                 Toast.makeText(getBaseContext(), "Datos energeticos monitoreados", Toast.LENGTH_SHORT).show();
                 //this.monitor.añadir("G4", generateApps());
-                this.monitor.añadir("G4", getTopActivtyFromLolipopOnwards());
+                this.monitor.añadir("G4", getTopActivtyFromLolipopOnwards(segundos));
                 this.monitor.printear();
-
-
-
             }
 
 
