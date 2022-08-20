@@ -1,34 +1,26 @@
 package com.tutsplus.code.android.asynctask;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,31 +33,47 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
 
     Button button3;
     EditText segundosIngresados;
+    String nombreApp;
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_monitorear);
+        String valor = getIntent().getStringExtra("id"); // nombre de la app que se abrirá
+        nombreApp= getIntent().getStringExtra("packageName");// nombre del package para abrir la app
         button3 = (Button)findViewById(R.id.button3);
         segundosIngresados= findViewById(R.id.NumeroIngresado);
         button3.setOnClickListener(this);
+        TextView textoTitulo= (TextView) findViewById(R.id.titulo);
+        textoTitulo.setText("La aplicación a abrir es: "+ valor);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
 
     }
 
-   private void esperarSegundos(int segundosDeEspera){
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void esperarSegundos(int segundosDeEspera){
         segundosDeEspera= segundosDeEspera*1000;
         try{
             Thread.sleep(segundosDeEspera); //
         }catch (InterruptedException e){}
     }
 
-    private void openNavigator(){
-        String url = "http://www.google.com";
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
+    private void openNavigator(String string){
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(string);
+        startActivity( launchIntent );
 
     }
 
@@ -163,7 +171,7 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
             this.monitor.añadir("G1", getTopActivtyFromLolipopOnwards(segundos));
             this.monitor.añadir("MEB", getBattery());
             this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards(segundos));
-            openNavigator();
+            openNavigator(nombreApp);
 
         }
         @Override
@@ -216,11 +224,9 @@ public class MainMonitorear extends AppCompatActivity  implements  View.OnClickL
         protected Boolean doInBackground(Void... params) {
 
             this.monitor.añadir("G2", getTopActivtyFromLolipopOnwards(segundos));
-            openNavigator();
-           publishProgress(); //llama a onprogressUpdate
-           esperarSegundos(segundos);
-
-            // SystemClock.sleep(40000);
+            openNavigator(nombreApp);
+            publishProgress(); //llama a onprogressUpdate
+            esperarSegundos(segundos);
             this.monitor.añadir("G3", getTopActivtyFromLolipopOnwards(segundos));
             this.monitor.añadir("MEApp", getBattery());
             //UnSegundo(segundosIngresados); //con esto se setea un tiempo antes de que se termine el onprogress thread

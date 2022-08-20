@@ -31,12 +31,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void next(View view){
-        Intent next = new Intent(this, MainMonitorear.class);
+        Intent next = new Intent(this, ListaAplicaciones.class);
         startActivity(next);
 
 }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void verificarpermisos() {
