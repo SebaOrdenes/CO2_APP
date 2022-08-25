@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(next);
 
 }
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void verificarpermisos() {

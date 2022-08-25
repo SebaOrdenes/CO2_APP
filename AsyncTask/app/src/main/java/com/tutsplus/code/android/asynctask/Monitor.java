@@ -75,7 +75,16 @@ public class Monitor {
              int name = (int) fases.get("MEB");
              int name2 = (int) fases.get("MEApp");
              bw.write(this.fases.get("G1").toString()+ "\n"+this.fases.get("G2").toString()+ "\n"+this.fases.get("G3").toString()+"\n"+this.fases.get("G4").toString());
+             /*try {
+                 bw.write(this.fases.get("OpenAnotherApp").toString());
+             } catch (IOException e) {
+                 e.printStackTrace();
+             } catch (JSONException e) {
+                 e.printStackTrace();
+             }*/
+
              bw.write("\n"+ this.fases);
+             //bw.write("\n"+ this.fases.get("Val1").toString()+ "\n"+ this.fases.get("Val2").toString()+"\n"+ this.fases.get("Val3").toString());
              bw.close();
              Log.d("d","TXT GUARDADO");
 
@@ -84,6 +93,12 @@ public class Monitor {
          }
        }
 
+    public JSONObject getFases() {
+        return fases;
+    }
 
+    public void setFases(JSONObject fases) {
+        this.fases = fases;
+    }
 
 }

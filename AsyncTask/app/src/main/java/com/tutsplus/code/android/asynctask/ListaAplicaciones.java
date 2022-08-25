@@ -51,6 +51,7 @@ public class ListaAplicaciones extends AppCompatActivity {
                 Log.i("Click", "click en el elemento " + position + " de mi ListView correspondiente a "+ listaAux[position] );
                 next(o.toString(), listaAux[position]);
 
+
                 //Intent launchIntent = getPackageManager().getLaunchIntentForPackage(listaAux[position]);
                 //startActivity( launchIntent );
 
@@ -123,11 +124,34 @@ void agregarElementos(String item){
         Log.d(TAG, "getallapps: "+ appsWithPackageName[0]);
         this.listaAux=appsWithPackageName;
         // set all the apps name in list view
-        listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
+        try {
+            listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       // listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
          // write total count of apps available.
         text.setText(ril.size() + " Apps are installed");
 
     }
+
+    public void getallapps3(View view) {
+        // get list of all the apps installed
+        List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
+        String[] apps = new String[packList.size()];
+        for (int i = 0; i < packList.size(); i++) {
+            PackageInfo packInfo = packList.get(i);
+            apps[i] = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+        }
+        // set all the apps name in list view
+        listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
+        // write total count of apps available.
+        text.setText(packList.size() + " Apps are installed");
+    }
+
+
+
+
 
 
     public void getallapps2(View view) {
@@ -155,13 +179,6 @@ void agregarElementos(String item){
         super.onStart();
 
     }
-
-
-
-
-
-
-
 
 
 
