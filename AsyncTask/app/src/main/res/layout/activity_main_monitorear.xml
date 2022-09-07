@@ -54,6 +54,7 @@
         android:layout_height="87dp"
         android:text="TextView"
         android:textSize="20sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "925302756877",
+    "project_id": "mobile-app-fcefa",
+    "storage_bucket": "mobile-app-fcefa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925302756877:android:16eb0decfe15925b6ea744",
+        "android_client_info": {
+          "package_name": "com.tutsplus.code.android.asynctask"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925302756877-tl972rmndb8g6mbm4mva8rndup1jncpd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6FLDFTI--D4ZC_fZ8gN6Fx4Joyvyp2Fw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925302756877-tl972rmndb8g6mbm4mva8rndup1jncpd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

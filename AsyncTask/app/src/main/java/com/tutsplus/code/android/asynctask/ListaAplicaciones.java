@@ -20,15 +20,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ListaAplicaciones extends AppCompatActivity {
 
     ListView listView;
     TextView text;
-    String[] listaAux;
+   ArrayList listaAux;
+    ArrayList listAuxVersion;
     ArrayAdapter adapter;
 
     @Override
@@ -48,8 +52,8 @@ public class ListaAplicaciones extends AppCompatActivity {
 
                 Object o = listView.getItemAtPosition(position);
                 // Realiza lo que deseas, al recibir clic en el elemento de tu listView determinado por su posicion.
-                Log.i("Click", "click en el elemento " + position + " de mi ListView correspondiente a "+ listaAux[position] );
-                next(o.toString(), listaAux[position]);
+                Log.i("Click", "click en el elemento " + position + " de mi ListView correspondiente a "+ listaAux.get(position) );
+                next(o.toString(), (String) listaAux.get(position), (String) listAuxVersion.get(position));
 
 
                 //Intent launchIntent = getPackageManager().getLaunchIntentForPackage(listaAux[position]);
@@ -60,10 +64,11 @@ public class ListaAplicaciones extends AppCompatActivity {
 
 
     }
-    public void next(String x, String y){
+    public void next(String x, String y, String z){
         Intent next = new Intent(this, MainMonitorear.class);
         next.putExtra("id", x);
         next.putExtra("packageName",y);
+        next.putExtra("version",z);
 
         startActivity(next);
 
@@ -100,29 +105,54 @@ void agregarElementos(String item){
         // get size of ril and create a list
         String[] apps = new String[ril.size()];
         String[] appsWithPackageName = new String[ril.size()];
+        String[] appsVers = new String[ril.size()];
+        Map<String, Object> data = new HashMap<>();
+
+        //List<ApplicationInfo> appsAux = getPackageManager().getInstalledApplications(0);
+        Log.e(TAG, "RIL SIZE: "+ ril.toString() );
+        PackageInformation androidPackagesInfo = new PackageInformation(this);
+        ArrayList<PackageInformation.InfoObject> appsData = androidPackagesInfo.getInstalledApps(true);
+        for (PackageInformation.InfoObject info: appsData) {
+           // System.out.println(info.pname);
+
+            for (ResolveInfo ri: ril){
+
+                if (ri.activityInfo.applicationInfo.packageName.equals(info.pname)){
+                    Log.e(TAG, "HOLA HAY UNA APP IGUAL ");
+
+                }
+            }
+            i++;
+        }
         for (ResolveInfo ri : ril) {
+            Log.e(TAG, "getallapps: "+ ri.activityInfo.applicationInfo );
             if (ri.activityInfo != null) {
                 // get package
                 Resources res = getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // Log.e(TAG, "getallapps: "+ri.activityInfo.icon );
 
                 // if activity label res is found
                 if (ri.activityInfo.labelRes != 0) {
                     name = res.getString(ri.activityInfo.labelRes);
+
                 } else {
                     name = ri.activityInfo.applicationInfo.loadLabel(
                             getPackageManager()).toString();
                 }
-                apps[i] = name;
-                appsWithPackageName[i]=ri.activityInfo.applicationInfo.packageName;
-               // appsWithPackageName[i]= ri.activityInfo.applicationInfo.packageName;
-                Log.d(TAG, ""+ ri.activityInfo.applicationInfo.packageName);
+                // Log.e(TAG, "getallapps: "+ ri.activityInfo.applicationInfo.);
+                //   <-- apps[i] = name;
+                //<--   appsWithPackageName[i]=ri.activityInfo.applicationInfo.packageName;
+                // appsWithPackageName[i]= ri.activityInfo.applicationInfo.packageName;
+                //Log.e(TAG, "getallapps: "+pInfo.versionName );
+                // Log.d(TAG, ""+ ri.activityInfo.applicationInfo.packageName);
                 //agregarElementos("");
                 i++;
             }
         }
 
+
         Log.d(TAG, "getallapps: "+ appsWithPackageName[0]);
-        this.listaAux=appsWithPackageName;
+        //this.listaAux=appsWithPackageName;
         // set all the apps name in list view
         try {
             listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
@@ -135,21 +165,6 @@ void agregarElementos(String item){
 
     }
 
-    public void getallapps3(View view) {
-        // get list of all the apps installed
-        List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
-        String[] apps = new String[packList.size()];
-        for (int i = 0; i < packList.size(); i++) {
-            PackageInfo packInfo = packList.get(i);
-            apps[i] = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
-        }
-        // set all the apps name in list view
-        listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
-        // write total count of apps available.
-        text.setText(packList.size() + " Apps are installed");
-    }
-
-
 
 
 
@@ -157,27 +172,77 @@ void agregarElementos(String item){
     public void getallapps2(View view) {
         // get list of all the apps installed
         List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
+        List<ApplicationInfo> appsAux = getPackageManager().getInstalledApplications(0);
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null); //new
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);//new
+        List<ResolveInfo> ril = getPackageManager().queryIntentActivities(mainIntent, 0); //new
         final PackageManager pm = getPackageManager();
-        String[] apps = new String[packList.size()];
-        for (int i = 0; i < packList.size(); i++) {
-            PackageInfo packInfo = packList.get(i);
-            apps[i] = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
-           // Log.d("TAG", "getallapps2: "+ packInfo.packageName);
-            Log.d("TAG", "---------->: "+ packInfo.packageName);
+        String[] apps = new String[ril.size()];
+        String[] appsPkg = new String[packList.size()];
+        String[] appsVers = new String[packList.size()];
+        ArrayList appsAux2= new ArrayList();
+        ArrayList appsPkgAux= new ArrayList();
+        ArrayList appsVersAux= new ArrayList();
+
+
+        for (ResolveInfo resolveInfo: ril){
+           // Log.e(TAG, "RESOLVEINFO->: "+ resolveInfo.activityInfo.packageName);
+
+            for (int i = 0; i < packList.size(); i++) {
+
+                PackageInfo packInfo = packList.get(i);
+                if (resolveInfo.activityInfo.packageName.equals(packList.get(i).packageName)){
+                  //  Log.e(TAG, "HOLA ENCONTRE UN PAQUETE IGUAL Y SOY  "+ resolveInfo.activityInfo.packageName );
+                    appsPkg[i]=packInfo.packageName;
+                    appsVers[i]= packInfo.versionName;
+                    appsAux2.add(packInfo.applicationInfo.loadLabel(this.getPackageManager()).toString());
+                    appsPkgAux.add(packInfo.packageName);
+                    appsVersAux.add(packInfo.versionName);
+
+                }
+
+
+            }
+
 
         }
+        for (int i = 0; i < appsAux2.size(); i++) {
+
+            apps[i] = appsAux2.get(i).toString();
+        }
+
+        this.listaAux=appsPkgAux;
+        this.listAuxVersion=appsVersAux;
+
         // set all the apps name in list view
         listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
         // write total count of apps available.
-        text.setText(packList.size() + " Apps are installed");
+        text.setText(ril.size() + " Apps are installed");
 
-        //startActivity(pm.getLaunchIntentForPackage("com.android.providers.calendar"));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
+    }
+
+
+    public void getallapps3(View view) {
+        // get list of all the apps installed
+        List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
+        String[] apps = new String[packList.size()];
+        String[] appsPackageName = new String[packList.size()];
+        for (int i = 0; i < packList.size(); i++) {
+            PackageInfo packInfo = packList.get(i);
+            apps[i] = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+
+
+        }
+        // set all the apps name in list view
+        listView.setAdapter(new ArrayAdapter<String>(ListaAplicaciones.this, android.R.layout.simple_list_item_1, apps));
+        // write total count of apps available.
+        text.setText(packList.size() + " Apps are installed");
     }
 
 

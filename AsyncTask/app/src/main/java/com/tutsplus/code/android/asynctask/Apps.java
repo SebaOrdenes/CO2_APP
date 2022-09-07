@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 

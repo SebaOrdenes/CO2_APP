@@ -31,9 +31,9 @@ import java.util.ArrayList;
 
 public class Monitor {
 
-    private JSONObject fases;
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
+    public JSONObject fases;
+    public static final int REQUEST_EXTERNAL_STORAGE = 1;
+    public static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
@@ -100,5 +100,7 @@ public class Monitor {
     public void setFases(JSONObject fases) {
         this.fases = fases;
     }
+
+
 
 }
